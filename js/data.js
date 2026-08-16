@@ -253,12 +253,17 @@ const DATA = {
       slug:     "phishing-email-detection",
       category: "ml",
       period:   "2025",
-      blurb:    "Classified 10K+ emails as phishing or legitimate, benchmarking " +
-                "a fine-tuned BERT against SVM and Random Forest baselines to " +
-                "see what the transformer actually bought over classical models.",
-      impact:   "92% accuracy with fine-tuned BERT, beating both classical baselines.",
-      tags:     ["Python", "BERT", "SVM", "Random Forest", "scikit-learn"],
-      links:    [{ label: "Code", url: "TODO: repo url" }],
+      blurb:    "A hybrid feature pipeline for phishing detection: two " +
+                "class-conditional HMMs score how likely an email is under " +
+                "phishing versus legitimate word statistics, those likelihoods " +
+                "are concatenated with a BERT sentence embedding, and classical " +
+                "classifiers run on the combined vector.",
+      impact:   "93.5% accuracy on a held-out set of 200 emails — logistic regression " +
+                "over combined HMM + BERT features, against 92.0% for random forest.",
+      tags:     ["Python", "BERT", "HMM", "CRF", "Logistic Regression", "NLTK", "scikit-learn"],
+      links:    [
+        { label: "Code", url: "https://github.com/Delvitron1019/Phishing-Email-Detection-Framework" },
+      ],
       detail: {
         problem:
           "Phishing detection is class-imbalanced text classification where the " +
@@ -270,62 +275,89 @@ const DATA = {
           "of the way? The comparison is the point of the project, not the 92%.",
 
         data: {
-          text: "TODO: name and link the corpus (Enron + Nazario? SpamAssassin? Kaggle?).",
+          text: "The Enron email corpus, labelled phishing versus legitimate. " +
+                "Near-balanced, which matters: it means accuracy is a meaningful " +
+                "headline number here rather than a misleading one, since the " +
+                "majority-class baseline sits at about 53%.",
           spec: [
-            ["Emails", "10,000+"],
-            ["Class balance", "TODO: what fraction was phishing? This decides whether 92% is strong or barely above the majority-class baseline, so state it explicitly"],
-            ["Fields used", "TODO: subject and body only, or headers and URLs too?"],
-            ["Deduplication", "TODO: public phishing corpora have heavy near-duplicate overlap; leakage between splits is the standard way these numbers get inflated"],
+            ["Corpus", "Enron.csv — subject, body, binary label"],
+            ["Emails available", "29,767"],
+            ["Class balance", "15,791 legitimate (53.0%) / 13,976 phishing (47.0%)"],
+            ["Body length", "median 694 characters, mean 1,465, max 228,353"],
+            ["Missing values", "198 emails with no subject line; bodies complete"],
+            ["Used for modelling", "1,000 emails, randomly sampled from the 29,767"],
+            ["Fields used", "Body text only — headers and URLs were not used as features"],
           ],
+          note: "The 1,000-email subsample is the honest caveat on every number " +
+                "below: BERT embeddings were computed on CPU one email at a time, " +
+                "which makes the full corpus impractical in a notebook session. " +
+                "Worth stating plainly rather than quoting the 29,767 figure.",
         },
 
         approach: {
+          text: "Rather than fine-tuning a transformer end to end, the pipeline " +
+                "treats sequence models as feature extractors and lets a cheap " +
+                "classifier do the deciding.",
           bullets: [
-            "Classical baselines on TF-IDF features — TODO: n-gram range, and any handcrafted features such as URL counts, sender-domain mismatch, or IP literals",
-            "BERT fine-tuned on the same split — TODO: checkpoint, max sequence length, and how you handled emails longer than it",
-            "TODO: did the classical baselines get a genuine tuning budget? An untuned baseline flatters the transformer, and acknowledging that is a strong signal",
+            "Preprocessing: NLTK tokenisation, lowercasing, alphanumeric filter, English stopword removal, WordNet lemmatisation",
+            "Two class-conditional HMMs — one trained only on phishing emails, one only on legitimate — each scoring an email's log-likelihood under its own word statistics",
+            "A frozen BERT encoder producing a [CLS] sentence embedding per email",
+            "The two HMM log-likelihoods concatenated with the 768-dimensional BERT vector into a single 770-dimensional feature per email",
+            "Logistic regression and random forest trained on that combined vector; a MEMM and a CRF explored separately over token-level features",
           ],
         },
 
         model: {
+          text: "BERT here is a frozen feature extractor, not a fine-tuned " +
+                "classifier — the [CLS] embedding is read out and the gradient " +
+                "never flows back into the encoder. That's a meaningful " +
+                "distinction and cheaper by orders of magnitude, but it does mean " +
+                "the transformer never adapts to the phishing domain.",
           spec: [
-            ["Transformer", "TODO: bert-base-uncased?"],
-            ["Max sequence length", "TODO"],
-            ["Epochs / LR / batch", "TODO"],
-            ["Classical models", "SVM, Random Forest (scikit-learn)"],
-            ["Selection", "TODO: grid search or fixed hyperparameters?"],
+            ["Encoder", "bert-base-uncased, frozen, max_length 128 tokens"],
+            ["Sequence models", "hmmlearn MultinomialHMM, 2 hidden states, 100 iterations"],
+            ["Feature vector", "770-d = 2 HMM log-likelihoods + 768-d BERT [CLS]"],
+            ["Classifiers", "LogisticRegression (max_iter 1000), RandomForest (100 trees)"],
+            ["Also explored", "NLTK MaxentClassifier (MEMM), 10 iterations; pycrfsuite CRF, c1=c2=1.0, 1,930 features"],
+            ["Split", "80/20 stratified, random_state 42 → 200 test emails (101 legitimate, 99 phishing)"],
           ],
         },
 
         results: {
-          text: "On imbalanced data, accuracy is the weakest cell in this table — " +
-                "recall on the phishing class is what actually matters.",
+          text: "Measured on the 200-email held-out set. Precision, recall, and F1 " +
+                "are for the phishing class.",
           table: {
             columns: ["Model", "Accuracy", "Precision", "Recall", "F1"],
             rows: [
-              ["Random Forest",     "TODO", "TODO", "TODO", "TODO"],
-              ["SVM (TF-IDF)",      "TODO", "TODO", "TODO", "TODO"],
-              ["BERT, fine-tuned",  "92%",  "TODO", "TODO", "TODO"],
+              ["Majority-class baseline",        "53.0%", "—",    "—",    "—"],
+              ["Random forest (HMM + BERT)",     "92.0%", "0.94", "0.90", "0.92"],
+              ["Logistic regression (HMM + BERT)", "93.5%", "0.94", "0.93", "0.93"],
             ],
             highlight: 2,
           },
-          note: "TODO: the finding, in two or three sentences. BERT won by X " +
-                "points but cost Y× more inference time, so for deployment the " +
-                "tradeoff is Z. If the classical models came closer than " +
-                "expected, say so — a nuanced result you can explain is more " +
-                "interesting than a clean win you can't.",
+          note: "Logistic regression beat random forest on the same features, " +
+                "which is the more interesting result: once the HMM and BERT " +
+                "features carry the signal, a linear model is enough, and the " +
+                "extra capacity of an ensemble buys nothing. Confusion matrix for " +
+                "the best model: 95 legitimate and 92 phishing correct, 6 false " +
+                "positives, 7 missed phishing emails.",
         },
 
         deployment:
-          "TODO: was this deployed anywhere, or does it stop at evaluation? " +
-          "Either answer is fine — say which. If it stops at evaluation, the " +
-          "honest framing is that inference cost is what would decide the " +
-          "production choice, and point at the timing numbers.",
+          "Not deployed — the project stops at evaluation in a Colab notebook. " +
+          "The pipeline would be cheap to serve if it were: BERT inference " +
+          "dominates the cost, the HMMs and the linear classifier are negligible, " +
+          "and the whole thing is a single forward pass with no fine-tuned weights " +
+          "to host.",
 
         limitations: [
-          "TODO: corpus age. Public phishing datasets skew old and phishing language shifts fast, so performance on current phishing is likely below these numbers.",
-          "TODO: does the model see headers and URLs, or body text only? Real detectors lean heavily on header and link signals.",
-          "Adversarial robustness untested — none of these models were evaluated against an attacker who knows the classifier exists.",
+          "Trained on 1,000 of the 29,767 available emails. Scaling to the full corpus is the obvious next step and would likely move these numbers.",
+          "BERT is frozen rather than fine-tuned, so the encoder never adapts to phishing language. Fine-tuning it is the single change most likely to improve results.",
+          "Inputs truncated to 128 BERT tokens while the median email body runs to 694 characters, so most emails are only partly seen by the encoder.",
+          "The CRF branch is not soundly evaluated — its reported figures re-print the logistic regression scores rather than scoring the CRF's own predictions. Treat the CRF as exploratory, not as a result.",
+          "The MEMM's 90.6% is training accuracy over token-level features, and its train/test split is at token level rather than email level, so tokens from the same email appear on both sides. It is not comparable to the held-out numbers above.",
+          "The Enron corpus is old and phishing language shifts quickly, so performance on current phishing would be lower.",
+          "Body text only — no header, sender-domain, or URL features, which is what real detectors lean on hardest.",
         ],
       },
     },
@@ -413,12 +445,18 @@ const DATA = {
       slug:     "distributed-log-processing",
       category: "data-eng",
       period:   "2024",
-      blurb:    "A Spark pipeline that ingests event logs at volume, aggregates " +
-                "them in parallel, and surfaces real-time analytics rather than " +
-                "overnight batch reports.",
-      impact:   "Processes 1M+ event logs with parallel aggregation and real-time output.",
-      tags:     ["Python", "Spark", "ETL Pipelines", "Hadoop"],
-      links:    [{ label: "Code", url: "TODO: repo url" }],
+      blurb:    "A PySpark pipeline that ingests raw event logs, aggregates them " +
+                "in parallel, and writes analytics tables — benchmarked against a " +
+                "single-threaded pandas implementation computing identical " +
+                "outputs, to find where distributed processing actually starts " +
+                "paying for itself.",
+      impact:   "Crossover measured between 1M and 4M rows: pandas wins by 1.35× at " +
+                "1M, Spark wins by 1.43× at 4M. Every one of 4,000,000 input lines " +
+                "accounted for.",
+      tags:     ["Python", "PySpark", "pandas", "Parquet", "Benchmarking"],
+      links:    [
+        { label: "Code", url: "https://github.com/Delvitron1019/distributed-log-processing" },
+      ],
       detail: {
         problem:
           "Log analytics defaults to batch: collect all day, aggregate overnight, " +
@@ -430,58 +468,83 @@ const DATA = {
           "opposite things from your partitioning strategy.",
 
         data: {
+          text: "Synthetic, and generated by a script in the repo so the whole " +
+                "benchmark is reproducible from a clean clone. The generator is " +
+                "deliberately not uniform: endpoint popularity follows a Zipf " +
+                "distribution and latency is log-normal with a long tail, because " +
+                "uniform random data would hide partition skew — the actual " +
+                "engineering problem — and would make p95 agree with the mean, " +
+                "which never happens in reality.",
           spec: [
-            ["Volume", "1,000,000+ event logs"],
-            ["Source", "TODO: files on disk, S3, a Kafka topic?"],
-            ["Format", "TODO: JSON lines, Apache combined log, custom?"],
-            ["Malformed rows", "TODO: dropped silently, or routed to a dead-letter path with a counter? Every real log corpus has them, and this is the detail that separates a pipeline someone would run in production from one they wouldn't"],
+            ["Corpus", "1,000,000 and 4,000,000 line variants (227 MB / 907 MB)"],
+            ["Format", "JSON Lines, 8 shards, 10 fields per event"],
+            ["Skew", "Zipf-distributed endpoints; two injected incident windows"],
+            ["Malformed lines", "0.40% written broken on purpose — invalid JSON, truncated objects, blank lines, null timestamps"],
+            ["Bad-row handling", "PERMISSIVE read with a corrupt-record column: quarantined and counted, never silently dropped"],
           ],
         },
 
         approach: {
+          text: "Four aggregations, chosen because each stresses the engine differently.",
           bullets: [
-            "TODO: what's computed — request counts by endpoint, error rates, latency percentiles?",
-            "TODO: windowed (tumbling, sliding) or full-scan aggregation?",
-            "TODO: the partitioning strategy, and why. If you hit skew — and with real logs you almost certainly did, because traffic is never uniform across keys — say what it looked like and what fixed it. Salting a hot key is an unglamorous fix that proves you've debugged a real Spark job rather than run a tutorial",
+            "endpoint_stats — volume, error rate, and p50/p95/p99 latency per endpoint. A wide shuffle over skewed keys",
+            "error_timeline — error rate per service per 1-minute event-time window, which surfaces the injected incidents",
+            "service_health — per-service, per-region rollup. Cheap, small output",
+            "top_users — groupBy over ~120,000 distinct keys, the genuinely expensive one",
+            "percentile_approx rather than an exact percentile: one pass with bounded error instead of a full sort within each group",
           ],
         },
 
         model: {
-          text: "PySpark, structured as ingest → parse → aggregate → sink.",
+          text: "PySpark, structured as ingest → parse → aggregate → Parquet. " +
+                "The schema is declared explicitly rather than inferred — " +
+                "inference costs an extra full pass and silently changes column " +
+                "types when a new file arrives with a null column, which is the " +
+                "classic way a working pipeline breaks overnight.",
           spec: [
-            ["Engine", "Apache Spark (PySpark)"],
-            ["Mode", "TODO: Structured Streaming, or micro-batch on a schedule? \"Real-time\" covers a lot of ground and reviewers will ask"],
-            ["Cluster", "TODO: executors, cores, memory"],
-            ["Output", "TODO: Parquet, a database, a dashboard?"],
+            ["Engine", "PySpark 4.2.0, local mode, adaptive query execution on"],
+            ["Machine", "WSL2 Ubuntu, 16 logical cores, 7 GB RAM, OpenJDK 17"],
+            ["Shuffle partitions", "16"],
+            ["Baseline", "Single-threaded pandas computing byte-identical outputs"],
+            ["Output", "Parquet, one directory per aggregation"],
           ],
         },
 
         results: {
-          text: "TODO: the before/after timings are the whole story of this " +
-                "project. \"Processes 1M+ logs\" describes what it does; \"cut a " +
-                "40-minute single-threaded pass to 90 seconds across 8 " +
-                "executors\" describes what you achieved.",
+          text: "Both engines on the same machine and OS, computing identical " +
+                "outputs. The interesting number is not the speedup but where it " +
+                "crosses one.",
           table: {
-            columns: ["Configuration", "Runtime", "Throughput"],
+            columns: ["Rows", "pandas (1 thread)", "Spark local[4]", "Winner"],
             rows: [
-              ["Single-threaded baseline", "TODO", "TODO"],
-              ["Spark, tuned",             "TODO", "TODO"],
+              ["1,000,000", "19.8s · 50.3k rows/s", "26.7s · 37.3k rows/s", "pandas, 1.35×"],
+              ["4,000,000", "61.5s · 64.8k rows/s", "43.2s · 92.3k rows/s", "Spark, 1.43×"],
             ],
             highlight: 1,
           },
+          note: "The crossover sits between 1M and 4M rows. Below it Spark loses " +
+                "outright — the JVM, query planner, and task scheduling cost more " +
+                "than the parallelism returns, and at local[1] Spark is 22% slower " +
+                "than plain pandas. Above it Spark pulls ahead and keeps going, " +
+                "while pandas' peak memory grows linearly (622 MB → 2.0 GB for 4× " +
+                "the data) toward a ceiling Spark doesn't have. Throughput also " +
+                "peaks at 4 cores and declines by 16: at this data size each task " +
+                "is small enough that coordination overhead outgrows the benefit.",
         },
 
         deployment:
-          "TODO: how it's run — spark-submit locally, on a cluster, scheduled? " +
-          "Worth including a synthetic log generator in the repo so a reviewer " +
-          "can run it without sourcing a million log lines themselves. That's the " +
-          "single highest-value addition to this project.",
+          "Runs as a local spark-submit job over a directory of JSONL shards, " +
+          "writing Parquet. The repo ships a synthetic log generator so a reviewer " +
+          "can reproduce every number above from a clean clone without needing " +
+          "access to real traffic logs.",
 
         limitations: [
-          "TODO: does it handle late-arriving events, or assume ordered arrival?",
-          "TODO: exactly-once or at-least-once semantics on the output?",
-          "TODO: what happens on executor failure mid-run?",
-          "TODO: tested at 1M events — what's the next bottleneck at 100M?",
+          "Local mode, not a real cluster — one JVM heap and no network shuffle, which understates shuffle cost and overstates how cheap coordination is.",
+          "An early version of this benchmark was invalid: the pandas baseline ran on Windows while Spark ran under WSL. The same workload took 29.2s on Windows and 19.8s in WSL, a 47% gap with nothing to do with the engine. Both sides now run in one environment.",
+          "Batch over files, not streaming. The timeline aggregation uses event-time windows and would port to Structured Streaming, but late-arriving events and watermarking are not handled.",
+          "Output is overwritten each run — no incremental or idempotent writes.",
+          "Executor failure mid-run is untested; local mode makes it hard to exercise.",
+          "Measured to 4M rows. The next bottleneck is likely the top_users groupBy, whose key cardinality grows with the user base rather than with traffic volume.",
         ],
       },
     },
