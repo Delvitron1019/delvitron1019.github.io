@@ -450,9 +450,9 @@ const DATA = {
                 "single-threaded pandas implementation computing identical " +
                 "outputs, to find where distributed processing actually starts " +
                 "paying for itself.",
-      impact:   "Crossover measured between 1M and 4M rows: pandas wins by 1.35× at " +
-                "1M, Spark wins by 1.43× at 4M. Every one of 4,000,000 input lines " +
-                "accounted for.",
+      impact:   "Crossover measured between 1M and 4M rows: pandas wins at 1M, Spark " +
+                "wins by 1.72× at 4M. Useful core count turned out to depend on data " +
+                "size, not on the job.",
       tags:     ["Python", "PySpark", "pandas", "Parquet", "Benchmarking"],
       links:    [
         { label: "Code", url: "https://github.com/Delvitron1019/distributed-log-processing" },
@@ -515,21 +515,25 @@ const DATA = {
                 "outputs. The interesting number is not the speedup but where it " +
                 "crosses one.",
           table: {
-            columns: ["Rows", "pandas (1 thread)", "Spark local[4]", "Winner"],
+            columns: ["Cores", "1M rows", "4M rows", "4M speedup"],
             rows: [
-              ["1,000,000", "19.8s · 50.3k rows/s", "26.7s · 37.3k rows/s", "pandas, 1.35×"],
-              ["4,000,000", "61.5s · 64.8k rows/s", "43.2s · 92.3k rows/s", "Spark, 1.43×"],
+              ["pandas (1 thread)", "19.8s", "61.5s", "1.00×"],
+              ["Spark local[1]",    "37.6s", "83.6s", "0.74×"],
+              ["Spark local[4]",    "24.5s", "41.0s", "1.50×"],
+              ["Spark local[16]",   "27.1s", "35.8s", "1.72×"],
             ],
-            highlight: 1,
+            highlight: 3,
           },
-          note: "The crossover sits between 1M and 4M rows. Below it Spark loses " +
-                "outright — the JVM, query planner, and task scheduling cost more " +
-                "than the parallelism returns, and at local[1] Spark is 22% slower " +
-                "than plain pandas. Above it Spark pulls ahead and keeps going, " +
-                "while pandas' peak memory grows linearly (622 MB → 2.0 GB for 4× " +
-                "the data) toward a ceiling Spark doesn't have. Throughput also " +
-                "peaks at 4 cores and declines by 16: at this data size each task " +
-                "is small enough that coordination overhead outgrows the benefit.",
+          note: "Two findings. First, the crossover sits between 1M and 4M rows: " +
+                "below it Spark loses at every core count, above it Spark wins by " +
+                "1.72× while pandas' peak memory climbs linearly (608 MB → 1,959 MB " +
+                "for 4× the data) toward a ceiling Spark doesn't have. Second, and " +
+                "more useful — the scaling curve changes shape with data size. At " +
+                "1M rows throughput peaks at 4 cores and then declines, because " +
+                "each task is too small to justify its scheduling overhead. At 4M " +
+                "all 16 cores still help. How many cores are worth provisioning is " +
+                "a property of the data volume, not of the job, so sizing a cluster " +
+                "from a benchmark on a smaller sample would under-provision.",
         },
 
         deployment:
