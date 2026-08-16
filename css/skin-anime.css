@@ -1,0 +1,295 @@
+/* ============================================================================
+   skin-anime.css — optional "anime" skin.
+   ----------------------------------------------------------------------------
+   Everything here is scoped under [data-skin="anime"], so the default
+   technical skin is untouched. Switch skins in js/data.js (site.skin), or
+   preview with ?skin=anime / ?skin=technical in the URL.
+
+   Design intent: night-sky gradients, glass panels, sakura accents, Japanese
+   section labels. Anime-adjacent rather than costumed — it should read as
+   deliberately designed, not as a fan page.
+   ========================================================================== */
+
+/* ── Dark palette (default) ─────────────────────────────────────────────── */
+:root[data-skin="anime"] {
+  --bg:          #0b0a1a;
+  --bg-elev:     #12102a;
+  --surface:     rgba(32, 27, 64, .58);
+  --surface-2:   rgba(50, 42, 92, .55);
+  --border:      rgba(179, 157, 255, .30);
+  --border-soft: rgba(179, 157, 255, .16);
+
+  --text:        #f3efff;
+  --text-dim:    #c6bce9;
+  --text-mute:   #a99fd4;   /* lightened to clear AA on the glass surfaces */
+
+  --accent:      #ff8fb1;   /* sakura */
+  --accent-dim:  #ff6f9c;
+  --accent-ink:  #2b0d1b;
+  --accent-wash: rgba(255, 143, 177, .13);
+  --accent-line: rgba(255, 143, 177, .38);
+
+  --accent-2:    #7ce0ff;   /* sky   */
+  --accent-3:    #b39dff;   /* iris  */
+
+  --radius:    20px;
+  --radius-sm: 13px;
+  --radius-lg: 30px;
+
+  --glass-blur: blur(16px) saturate(160%);
+}
+
+/* ── Light palette ──────────────────────────────────────────────────────── */
+:root[data-skin="anime"][data-theme="light"] {
+  --bg:          #fff7fa;
+  --bg-elev:     #ffffff;
+  --surface:     rgba(255, 255, 255, .74);
+  --surface-2:   rgba(255, 238, 246, .82);
+  --border:      rgba(214, 130, 165, .32);
+  --border-soft: rgba(214, 130, 165, .18);
+
+  --text:        #2b1b33;
+  --text-dim:    #5f4a70;
+  --text-mute:   #6b5b7c;   /* darkened to clear AA on the glass surfaces */
+
+  --accent:      #e0568a;
+  --accent-dim:  #c8407a;
+  --accent-ink:  #ffffff;
+  --accent-wash: rgba(224, 86, 138, .10);
+  --accent-line: rgba(224, 86, 138, .30);
+
+  --accent-2:    #4bb8dd;
+  --accent-3:    #8b6fe8;
+}
+
+/* ── Ambient background ─────────────────────────────────────────────────── */
+:root[data-skin="anime"] body {
+  background:
+    radial-gradient(60% 50% at 12% -5%,  var(--accent-wash) 0%, transparent 60%),
+    radial-gradient(48% 42% at 92% 8%,   rgba(124, 224, 255, .12) 0%, transparent 62%),
+    radial-gradient(55% 48% at 78% 92%,  rgba(179, 157, 255, .12) 0%, transparent 65%),
+    var(--bg);
+  background-attachment: fixed;
+}
+:root[data-skin="anime"][data-theme="light"] body {
+  background:
+    radial-gradient(60% 50% at 12% -5%,  rgba(224, 86, 138, .10) 0%, transparent 60%),
+    radial-gradient(48% 42% at 92% 8%,   rgba(75, 184, 221, .12) 0%, transparent 62%),
+    radial-gradient(55% 48% at 78% 92%,  rgba(139, 111, 232, .11) 0%, transparent 65%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* ── Glass surfaces ─────────────────────────────────────────────────────── */
+:root[data-skin="anime"] .project-card,
+:root[data-skin="anime"] .skill-card,
+:root[data-skin="anime"] .edu-card,
+:root[data-skin="anime"] .side-card,
+:root[data-skin="anime"] .contact-card,
+:root[data-skin="anime"] .cert-chip {
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-color: var(--border-soft);
+  box-shadow: 0 8px 32px -18px rgba(10, 4, 30, .6);
+}
+
+/* Gradient hairline along the top edge of each card. */
+:root[data-skin="anime"] .project-card,
+:root[data-skin="anime"] .skill-card,
+:root[data-skin="anime"] .edu-card,
+:root[data-skin="anime"] .side-card {
+  position: relative;
+  overflow: hidden;
+}
+:root[data-skin="anime"] .project-card::before,
+:root[data-skin="anime"] .skill-card::before,
+:root[data-skin="anime"] .edu-card::before,
+:root[data-skin="anime"] .side-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-line) 22%,
+                              rgba(124, 224, 255, .5) 55%, transparent);
+  opacity: .85;
+}
+
+:root[data-skin="anime"] .project-card:hover {
+  border-color: var(--accent-line);
+  box-shadow: 0 18px 46px -20px var(--accent-line),
+              0 0 0 1px var(--accent-line) inset;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+:root[data-skin="anime"] .brand-mark {
+  border-radius: 50%;
+  background: linear-gradient(140deg, var(--accent), var(--accent-3));
+  box-shadow: 0 0 12px var(--accent-line), 0 0 0 4px var(--accent-wash);
+}
+:root[data-skin="anime"] .scroll-progress {
+  height: 2.5px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-3), var(--accent-2));
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+/* Swap the technical grid for soft light bloom. */
+:root[data-skin="anime"] .hero-grid {
+  background-image:
+    radial-gradient(closest-side, var(--accent-wash), transparent),
+    radial-gradient(closest-side, rgba(124, 224, 255, .14), transparent);
+  background-size: 62% 62%, 46% 46%;
+  background-position: 8% 18%, 74% 6%;
+  background-repeat: no-repeat;
+  mask-image: none;
+  -webkit-mask-image: none;
+  opacity: 1;
+}
+
+:root[data-skin="anime"] .hero-title {
+  background: linear-gradient(120deg,
+              var(--text) 0%, var(--accent) 42%, var(--accent-3) 68%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Descenders get clipped by background-clip without a little breathing room. */
+  padding-bottom: .08em;
+}
+
+:root[data-skin="anime"] .hero-role {
+  font-family: var(--font);
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+
+:root[data-skin="anime"] .eyebrow {
+  background: linear-gradient(90deg, var(--accent-wash), rgba(124, 224, 255, .10));
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+:root[data-skin="anime"] .btn-primary {
+  background: linear-gradient(120deg, var(--accent), var(--accent-3));
+  box-shadow: 0 8px 26px -10px var(--accent), 0 0 0 1px var(--accent-line);
+}
+:root[data-skin="anime"] .btn-primary:hover {
+  background: linear-gradient(120deg, var(--accent-dim), var(--accent-3));
+  filter: brightness(1.06);
+}
+:root[data-skin="anime"] .btn-ghost {
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+:root[data-skin="anime"] .hero-stats dt {
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-bottom: .06em;
+}
+
+/* ── Section headings ───────────────────────────────────────────────────── */
+:root[data-skin="anime"] .section + .section {
+  border-top-color: transparent;
+  position: relative;
+}
+:root[data-skin="anime"] .section + .section::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: min(760px, 84%);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-line), transparent);
+}
+
+/* ── Chips, tags, filters ───────────────────────────────────────────────── */
+:root[data-skin="anime"] .tag,
+:root[data-skin="anime"] .skill-card li {
+  border-radius: 999px;
+  border-color: var(--border-soft);
+  background: var(--surface-2);
+}
+:root[data-skin="anime"] .filter-btn.is-active {
+  background: linear-gradient(120deg, var(--accent), var(--accent-3));
+  border-color: transparent;
+  box-shadow: 0 6px 18px -8px var(--accent);
+}
+:root[data-skin="anime"] .pc-cat {
+  background: linear-gradient(90deg, var(--accent-wash), rgba(124, 224, 255, .12));
+  border-radius: 999px;
+}
+
+/* ── Timeline ───────────────────────────────────────────────────────────── */
+:root[data-skin="anime"] .timeline::before {
+  background: linear-gradient(180deg, var(--accent), var(--accent-3) 45%,
+                              var(--accent-2) 75%, transparent);
+  width: 2px;
+}
+:root[data-skin="anime"] .tl-item::before {
+  background: var(--bg);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-line);
+}
+
+/* ── Contact ────────────────────────────────────────────────────────────── */
+:root[data-skin="anime"] .contact-card {
+  background:
+    radial-gradient(120% 160% at 0% 0%, var(--accent-wash) 0%, transparent 58%),
+    radial-gradient(100% 140% at 100% 100%, rgba(124, 224, 255, .12) 0%, transparent 60%),
+    var(--surface);
+}
+
+/* ── Sakura petals ──────────────────────────────────────────────────────── */
+.petals {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+.petal {
+  position: absolute;
+  top: -6vh;
+  width: 11px;
+  height: 11px;
+  border-radius: 100% 0 100% 0;
+  background: linear-gradient(135deg, var(--accent), var(--accent-3));
+  opacity: 0;
+  animation: petal-fall linear infinite;
+}
+@keyframes petal-fall {
+  0%   { opacity: 0;   transform: translate3d(0, 0, 0) rotate(0deg); }
+  8%   { opacity: .55; }
+  92%  { opacity: .35; }
+  100% { opacity: 0;   transform: translate3d(14vw, 106vh, 0) rotate(520deg); }
+}
+
+/* Petals are decoration; they go away when motion is unwelcome or the screen
+   is small enough that they'd crowd the content. */
+@media (prefers-reduced-motion: reduce) {
+  .petals { display: none; }
+}
+@media (max-width: 640px) {
+  .petals { display: none; }
+}
+
+/* ── Skin toggle button ─────────────────────────────────────────────────── */
+#skinToggle .i-skin-anime { display: none; }
+:root[data-skin="anime"] #skinToggle .i-skin-tech  { display: none; }
+:root[data-skin="anime"] #skinToggle .i-skin-anime { display: block; }
+:root[data-skin="anime"] #skinToggle {
+  color: var(--accent);
+  border-color: var(--accent-line);
+}
+
+/* ── Print: strip the decoration ────────────────────────────────────────── */
+@media print {
+  .petals { display: none !important; }
+  :root[data-skin="anime"] .hero-title,
+  :root[data-skin="anime"] .hero-stats dt {
+    -webkit-text-fill-color: #000;
+    color: #000;
+    background: none;
+  }
+}

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dev Shah — Data Science, NLP &amp; Machine Learning</title>
+<meta name="description" content="Dev Shah — MS Data Science candidate at the University of Maryland. NLP, large language models, and the ML pipelines that put them into production.">
+
+<!-- Open Graph / social preview. Add og:url and og:image once you pick a host. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dev Shah — Data Science, NLP &amp; Machine Learning">
+<meta property="og:description" content="MS Data Science at UMD. NLP, LLMs, and production ML pipelines.">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/skin-anime.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header" id="siteHeader">
+  <div class="wrap header-inner">
+    <a class="brand" href="#top">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-text" data-bind="profile.shortName">—</span>
+    </a>
+
+    <nav class="nav" id="nav" aria-label="Primary">
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#experience">Experience</a>
+      <a href="#education">Education</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-btn" id="skinToggle" type="button" aria-label="Switch visual style">
+        <svg class="i-skin-tech" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
+        <svg class="i-skin-anime" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c1.7 2.2 1.7 4.4 0 6.6C10.3 7.4 10.3 5.2 12 3z"/><path d="M20 9c-2.6.6-4.3 2-5 4.2 2.7.5 4.4-.9 5-4.2z"/><path d="M4 9c2.6.6 4.3 2 5 4.2-2.7.5-4.4-.9-5-4.2z"/><path d="M12 13.2V21"/></svg>
+      </button>
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Switch colour theme">
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><g class="rays"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></g></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.2 8.2 0 1 0 10.2 10.2z"/></svg>
+      </button>
+      <button class="icon-btn nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+</header>
+
+<main id="main">
+
+  <!-- ───────────────────────── HERO ───────────────────────── -->
+  <section class="hero" id="top">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="wrap hero-inner">
+      <p class="eyebrow">
+        <span class="pulse" aria-hidden="true"></span>
+        <span data-bind="profile.availability">—</span>
+      </p>
+
+      <h1 class="hero-title">
+        <span data-bind="profile.name">—</span>
+      </h1>
+
+      <p class="hero-role" data-bind="profile.role">—</p>
+
+      <p class="hero-blurb" data-bind="profile.blurb">—</p>
+
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#projects">
+          View projects
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn-ghost" id="resumeLink" href="#" download>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>
+          Résumé
+        </a>
+      </div>
+
+      <ul class="hero-links" id="heroLinks"></ul>
+
+      <dl class="hero-stats" id="heroStats"></dl>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── ABOUT ───────────────────────── -->
+  <section class="section" id="about">
+    <div class="wrap">
+      <h2 class="section-title">About</h2>
+      <div class="about-grid">
+        <div class="about-copy" id="aboutCopy"></div>
+        <aside class="about-side" id="aboutSide"></aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── PROJECTS ───────────────────────── -->
+  <section class="section" id="projects">
+    <div class="wrap">
+      <h2 class="section-title">Projects</h2>
+      <p class="section-lede">Selected work. Filter by the kind of problem it solves.</p>
+
+      <div class="filters" id="filters" role="group" aria-label="Filter projects by category"></div>
+
+      <div class="project-grid" id="projectGrid"></div>
+      <p class="empty-state" id="projectEmpty" hidden>No projects in this category yet.</p>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── SKILLS ───────────────────────── -->
+  <section class="section" id="skills">
+    <div class="wrap">
+      <h2 class="section-title">Skills</h2>
+      <p class="section-lede">Tools I reach for, grouped by what they're for.</p>
+      <div class="skill-grid" id="skillGrid"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── EXPERIENCE ───────────────────────── -->
+  <section class="section" id="experience">
+    <div class="wrap">
+      <h2 class="section-title">Experience</h2>
+      <ol class="timeline" id="timeline"></ol>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── EDUCATION ───────────────────────── -->
+  <section class="section" id="education">
+    <div class="wrap">
+      <h2 class="section-title">Education &amp; Certifications</h2>
+      <div class="edu-grid" id="eduGrid"></div>
+      <div class="cert-row" id="certRow"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── CONTACT ───────────────────────── -->
+  <section class="section section-contact" id="contact">
+    <div class="wrap">
+      <h2 class="section-title">Contact</h2>
+      <div class="contact-card">
+        <div>
+          <h3 class="contact-head" data-bind="contact.heading">—</h3>
+          <p class="contact-copy" data-bind="contact.body">—</p>
+        </div>
+        <div class="contact-actions">
+          <a class="btn btn-primary" id="emailBtn" href="#">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>
+            <span id="emailBtnText">Email me</span>
+          </a>
+          <button class="btn btn-ghost" id="copyEmail" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            Copy address
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Résumé held back from the public site for now — it carries a phone number.
+# Drop a phone-free PDF at assets/resume.pdf and delete this line to publish it.
+# While the file is absent the Résumé button removes itself, so nothing breaks.
+assets/resume.pdf
+
+# OS / editor noise
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+*.swp
