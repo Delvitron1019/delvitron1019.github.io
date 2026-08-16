@@ -5,13 +5,43 @@ dependencies, no npm. Open `index.html` in a browser and it works.
 
 ```
 portfolio/
-├── index.html          structure (rarely needs editing)
-├── css/styles.css      base styling; change --accent to recolour the site
-├── css/skin-anime.css  optional anime skin (overrides only)
-├── js/data.js          ← YOUR CONTENT LIVES HERE
-├── js/main.js          rendering + interaction (rarely needs editing)
-└── assets/             resume.pdf and any images
+├── index.html              home page
+├── projects/<slug>/        one folder per project detail page
+├── css/styles.css          base styling; change --accent to recolour the site
+├── css/project.css         detail-page styling
+├── css/skin-anime.css      optional anime skin (overrides only)
+├── js/data.js              ← YOUR CONTENT LIVES HERE
+├── js/common.js            shared helpers, theming, skins
+├── js/main.js              home-page rendering
+├── js/project.js           detail-page rendering
+└── assets/                 icons, og-image, resume.pdf
 ```
+
+## Project detail pages
+
+Each project with a `slug` and a `detail` block in `data.js` gets its own page
+at `/projects/<slug>/`, following a fixed narrative:
+
+**Problem → Data → Approach → Model → Results → Deployment → Limitations**
+
+That order is the point. It's what makes the work read as machine learning
+rather than as a repo tour — a reviewer can see how you framed the problem,
+what you compared against, and where you think it breaks. Omit any key in
+`data.js` and its section simply disappears from the page.
+
+Two of those sections carry more weight than the others:
+
+- **Results** takes a `table` with a `highlight` index marking your own model,
+  so the baseline comparison is legible at a glance. A results table with only
+  your own row filled in is worse than no table.
+- **Limitations** is the section that buys credibility. Naming where your work
+  breaks reads as confidence and pre-empts the question an interviewer was
+  going to open with.
+
+To add a project: give it a `slug` and a `detail` block in `data.js`, then copy
+any folder under `projects/` and change the `PROJECT_SLUG` value plus the title
+and description meta tags. The `<head>` is static on purpose — link unfurlers
+don't run JavaScript, so per-page titles and og tags have to be real HTML.
 
 ## Two skins
 
