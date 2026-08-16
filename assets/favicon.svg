@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="D">
+  <!-- Monogram favicon. Gradient matches the site's sakura → iris accents.
+       The D is drawn as a path rather than <text> on purpose: favicons render
+       in a context where font availability isn't guaranteed, so a typed letter
+       can fall back to something unintended. A path always looks the same. -->
+  <defs>
+    <linearGradient id="dg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff8fb1"/>
+      <stop offset="0.55" stop-color="#e07ac4"/>
+      <stop offset="1" stop-color="#b39dff"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="15" fill="url(#dg)"/>
+
+  <path fill="#ffffff" fill-rule="evenodd"
+        d="M19 14h14.5C44.4 14 52 21.4 52 32s-7.6 18-18.5 18H19V14zm9.2 8.2v19.6h5.3c6 0 9.8-3.8 9.8-9.8s-3.8-9.8-9.8-9.8h-5.3z"/>
+</svg>
