@@ -122,9 +122,7 @@
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
 :root[data-skin="anime"] .brand-mark {
-  border-radius: 50%;
-  background: linear-gradient(140deg, var(--accent), var(--accent-3));
-  box-shadow: 0 0 12px var(--accent-line), 0 0 0 4px var(--accent-wash);
+  box-shadow: 0 0 14px var(--accent-line);
 }
 :root[data-skin="anime"] .scroll-progress {
   height: 2.5px;
