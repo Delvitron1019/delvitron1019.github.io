@@ -388,16 +388,18 @@ const DATA = {
       slug:     "decentralized-medical-diagnostics",
       category: "software",
       period:   "2024",
+      title:    "Patient-Controlled Medical Records",
       blurb:    "Diagnostic records normally sit behind whichever hospital " +
-                "created them. This puts them on-chain instead: hospitals " +
-                "upload reports, patients reach their own history and insurance " +
-                "in one place, and the ledger provides the audit trail that " +
-                "would otherwise need a trusted intermediary.",
-      impact:   "Role-based access control across three actor types — patients, " +
-                "hospitals, and insurers — each with different permissions over " +
-                "the same records.",
-      tags:     ["Solidity", "Smart Contracts", "Access Control", "Blockchain", "Python"],
-      links:    [{ label: "Code", url: "TODO: repo url" }],
+                "created them. This puts the access control on-chain instead: " +
+                "patients own their record set and decide who reads it, " +
+                "hospitals write only where authorised, and insurers see only " +
+                "what is explicitly shared with them.",
+      impact:   "25/25 tests passing. Revoking consent costs 23,700 gas — the " +
+                "cheapest write in the contract, and half the cost of granting.",
+      tags:     ["Solidity", "Hardhat", "OpenZeppelin", "Access Control", "Smart Contracts"],
+      links:    [
+        { label: "Code", url: "https://github.com/Delvitron1019/decentralized-medical-records" },
+      ],
       detail: {
         problem:
           "Diagnostic records normally sit behind whichever hospital created " +
@@ -407,48 +409,84 @@ const DATA = {
           "the single point of failure it was meant to remove.",
 
         data: {
-          text: "TODO: what actually goes on-chain versus off-chain. This is the " +
-                "central design question in any health-record blockchain — full " +
-                "records on a public ledger is a privacy problem, so most designs " +
-                "store hashes or pointers on-chain and the records elsewhere. " +
-                "Whichever you did, say so; it's the detail a reviewer probes.",
+          text: "No patient data goes on-chain — only a content hash (an IPFS " +
+                "CID or the hash of an encrypted payload) plus metadata. This " +
+                "is not an optimisation, it is the whole architecture. On-chain " +
+                "data is permanent, world-readable, and cannot be deleted, so " +
+                "storing protected health information there would be " +
+                "irreversible and unlawful under GDPR's right to erasure. The " +
+                "chain stores who may access what; the encrypted payload lives " +
+                "elsewhere. Most 'blockchain for healthcare' designs get this " +
+                "backwards, and it is the first thing worth checking in any of them.",
+          spec: [
+            ["On-chain", "bytes32 content hash, author, timestamp, record type"],
+            ["Off-chain", "The encrypted record itself"],
+            ["Record types", "Diagnosis, LabResult, Imaging, Prescription, DischargeSummary"],
+          ],
         },
 
         approach: {
+          text: "Three actor types with genuinely different permissions over the " +
+                "same records, rather than one role flag.",
           bullets: [
-            "Three actor types with distinct permissions over the same records: patients, hospitals, and insurers",
-            "TODO: how identity and role assignment work — who grants a hospital its role?",
-            "TODO: how a patient grants and revokes access, and whether revocation is enforceable once data has been read",
+            "Patient — owns their record set, grants and revokes access, can share a single record instead of their whole history",
+            "Hospital — writes records only for patients who granted write access; can read back what it authored",
+            "Insurer — read-only, and only for records a patient explicitly shared. Cannot write a clinical record even if granted write permission, because the role gate stops it first",
+            "Admin — assigns hospital and insurer roles and can pause the contract, but deliberately cannot read any record. An administrator who can grant themselves access defeats the design, so there is no admin override on grantAccess",
           ],
         },
 
         model: {
-          text: "Smart contracts in Solidity implementing role-based access control.",
+          text: "A single Solidity contract built on OpenZeppelin's AccessControl " +
+                "and Pausable, with custom errors rather than string reverts.",
           spec: [
-            ["Contracts", "TODO: how many, and what each is responsible for"],
-            ["Chain / testnet", "TODO: Ethereum testnet? A local chain?"],
-            ["Storage", "TODO: on-chain records, or hashes with off-chain storage such as IPFS?"],
-            ["The AI part", "TODO: where does the diagnostics model fit? Right now the project name promises AI and the write-up is all ledger — worth being explicit"],
+            ["Solidity", "0.8.24, optimizer on (200 runs)"],
+            ["Framework", "Hardhat + ethers v6"],
+            ["Base contracts", "OpenZeppelin AccessControl, Pausable"],
+            ["Deployment cost", "957,064 gas — 1.6% of the block limit"],
+            ["Network", "Hardhat in-process only; never deployed to a public testnet"],
           ],
         },
 
         results: {
-          text: "Role-based access control across patients, hospitals, and insurers, " +
-                "each with different permissions over the same records.",
-          note: "TODO: this is the one project without a measurable result. " +
-                "Gas cost per operation, number of record types supported, or a " +
-                "working demo would all count. If it stopped at a prototype, say " +
-                "that plainly — it's a fine thing for a project to be.",
+          text: "25 of 25 tests passing. Access-control contracts are judged on " +
+                "what they refuse, so most of the suite asserts a revert: a " +
+                "hospital without a grant, an insurer trying to write, a second " +
+                "hospital reading records it did not author, an insurer trusted " +
+                "by one patient reaching another patient's data.",
+          table: {
+            columns: ["Operation", "Avg gas", "Note"],
+            rows: [
+              ["Deployment",        "957,064", "1.6% of block limit"],
+              ["addRecord",         "98,688",  "82,494–99,594 cold vs warm storage"],
+              ["shareRecord",       "50,649",  "share one record with one party"],
+              ["grantAccess",       "48,494",  "standing grant"],
+              ["revokeAccess",      "23,700",  "cheapest write in the contract"],
+            ],
+            highlight: 4,
+          },
+          note: "Revocation costing half what granting costs is the number worth " +
+                "pointing at. Withdrawing consent should never be the expensive " +
+                "path — cost is friction, and friction on consent withdrawal is a " +
+                "safety problem rather than a UX one. It lands cheap because " +
+                "revoking writes a zero and earns a storage refund, so the design " +
+                "intent and the gas economics happen to agree. The addRecord " +
+                "spread is cold-versus-warm storage: a patient's first record " +
+                "costs meaningfully more than their tenth.",
         },
 
         deployment:
-          "TODO: deployed to a testnet, run locally, or a demo front end? Say " +
-          "which, and link it if it's reachable.",
+          "Runs against Hardhat's in-process network. Not deployed to a public " +
+          "testnet, and not audited — access-control bugs are the classic " +
+          "smart-contract failure mode, and this has had no formal review.",
 
         limitations: [
-          "TODO: on-chain data is permanent and public by design, which is in direct tension with health-record privacy and with a right to erasure. How the design handles that is worth stating.",
-          "TODO: not audited. Access-control bugs in smart contracts are the classic failure mode, and saying it up front is better than being asked.",
-          "TODO: scale and cost — what happens to gas cost as records grow?",
+          "Not audited, and never deployed to a public testnet. A portfolio project, not production code.",
+          "Revocation is forward-only. It stops future reads of the pointer; it cannot un-read data already fetched and decrypted, or claw back a copy. There is a test asserting this behaviour rather than implying a guarantee the chain cannot make — real revocation needs off-chain key rotation and re-encryption.",
+          "getRecord is a view function, so its access check is advisory against a determined observer: anyone can read contract storage directly off a public chain. Confidentiality comes from the payload being encrypted off-chain, not from that check. The check still earns its place by making the authorisation state auditable and stopping honest clients over-reaching.",
+          "No key management. The contract assumes payloads are encrypted off-chain and says nothing about how keys reach authorised parties — which is the genuinely hard part of the problem.",
+          "Gas grows with the number of grants; a patient with many providers pays per grant. Batched grants or a Merkle-root approach would be the next step.",
+          "No break-glass access. Real systems need emergency clinical access for an unconscious patient, and a design where consent is strictly required has an obvious failure mode in an emergency room. This contract does not solve it.",
         ],
       },
     },
