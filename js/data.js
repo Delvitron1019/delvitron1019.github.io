@@ -159,92 +159,104 @@ const DATA = {
       category: "nlp",
       featured: true,
       period:   "2025",
-      blurb:    "Clinicians lose hours to dense report text. I fine-tuned a T5 " +
-                "transformer on clinical documents to produce summaries that " +
-                "keep the findings and drop the boilerplate, then deployed it " +
-                "as a Streamlit app so it could actually be used.",
-      impact:   "ROUGE-L of 0.71 on held-out clinical reports, deployed end to end via Streamlit.",
-      tags:     ["Python", "T5", "Transformers", "PyTorch", "Streamlit"],
+      blurb:    "Biomedical articles bury their findings in length. I fine-tuned " +
+                "T5 to produce abstractive summaries, then measured it against " +
+                "the two baselines that decide whether such a project is worth " +
+                "anything: a lead-3 extractive baseline, and the same model " +
+                "without fine-tuning.",
+      impact:   "ROUGE-L 20.06 on 200 held-out examples, against 18.56 for lead-3 " +
+                "and 13.83 for untuned T5. Trained in 18.7 minutes on a 4 GB laptop GPU.",
+      tags:     ["Python", "T5", "Transformers", "PyTorch", "ROUGE", "Streamlit"],
       links:    [
-        { label: "Code", url: "TODO: repo url" },
-        { label: "Demo", url: "TODO: live Streamlit url — or delete this line" },
+        { label: "Code", url: "https://github.com/Delvitron1019/medical-text-summarization" },
       ],
       detail: {
         problem:
-          "Clinical reports are long, templated, and written under time pressure. " +
-          "The diagnostically relevant content is often a few sentences buried in " +
-          "boilerplate, so anyone picking up a patient's history reads far more " +
-          "text than they need. Extractive summarizers handle this badly — they " +
-          "pull whole sentences, which in clinical text means pulling the " +
-          "boilerplate along with the finding.",
+          "Biomedical articles are long and structured, and the findings sit " +
+          "buried in them. Extractive summarizers handle this badly: they pull " +
+          "whole sentences, which means pulling the surrounding scaffolding " +
+          "along with the finding. Abstractive summarization can learn which " +
+          "parts of the structure carry signal — but only if it can beat the " +
+          "embarrassingly strong baseline of just taking the first three " +
+          "sentences, which is the question this project actually tests.",
 
         data: {
-          text: "TODO: name the corpus and link it (MIMIC-III? PubMed? MedQuAD?). " +
-                "State access requirements — reviewers want to know whether they " +
-                "could reproduce this. If the data was synthetic or scraped, say " +
-                "so; being upfront about provenance reads as a strength in " +
-                "clinical ML, not a weakness.",
+          text: "PubMed article/abstract pairs — biomedical literature, not " +
+                "clinical notes. The clinically ideal corpus would be MIMIC " +
+                "discharge summaries or radiology reports, but those need " +
+                "credentialed access (a CITI course and a signed data use " +
+                "agreement) and cannot back a public repo whose point is that " +
+                "anyone can reproduce the numbers. The pipeline transfers to " +
+                "clinical data; the numbers do not.",
           spec: [
-            ["Records", "TODO: how many report/summary pairs"],
-            ["Split", "TODO: train / val / test, and how it was drawn"],
-            ["Preprocessing", "TODO: cleaning, and how you handled reports longer than T5's input limit"],
+            ["Train / val / test", "6,000 / 400 / 400 pairs, frozen to disk before training"],
+            ["Article length", "3,324 words on average"],
+            ["Abstract length", "211 words on average"],
+            ["Filtering", "Dropped stub abstracts, truncated articles, and rows where the abstract was longer than its article"],
           ],
         },
 
         approach: {
-          text: "Framed as abstractive rather than extractive summarization, so " +
-                "the model learns which parts of the templated structure carry " +
-                "signal instead of copying whole sentences.",
           bullets: [
-            "TODO: how input/target pairs were constructed",
-            "TODO: the chunking or truncation strategy for long reports — clinical notes routinely exceed 512 tokens, and how you handled that is one of the more interesting decisions here",
-            "TODO: anything you tried that did not work, and why you moved on",
+            "Abstractive seq2seq rather than extractive, so the model can drop scaffolding instead of copying whole sentences",
+            "T5's 'summarize: ' task prefix — it was pretrained multi-task with instruction prefixes, and omitting it measurably degrades output",
+            "Target length raised from 128 to 256 tokens after the corpus statistics showed references average 211 words; the shorter cap was truncating labels and teaching the model to stop early",
+            "no_repeat_ngram_size=3 at generation — without it T5 loops, and beam search alone does not fix that",
           ],
         },
 
         model: {
-          text: "TODO: one or two sentences on why T5 rather than BART, PEGASUS, " +
-                "or an instruction-tuned LLM. The comparison you didn't run is " +
-                "the first question an interviewer asks.",
+          text: "t5-small chosen to fit a 4 GB laptop GPU. Larger variants would " +
+                "score higher; this is a compute constraint, not a design choice, " +
+                "and the write-up says so rather than implying otherwise.",
           spec: [
-            ["Architecture", "T5 (TODO: t5-small / t5-base / t5-large)"],
-            ["Fine-tuning", "TODO: full fine-tune or parameter-efficient (LoRA)?"],
-            ["Epochs", "TODO"],
-            ["Learning rate", "TODO"],
-            ["Batch size", "TODO"],
-            ["Hardware", "TODO: GPU and training time"],
+            ["Architecture", "t5-small, 60.5M parameters, full fine-tune"],
+            ["Epochs / LR", "3 epochs, 3e-4, 5% warmup"],
+            ["Batch", "4 per device × 4 accumulation = effective 16"],
+            ["Precision", "bf16"],
+            ["Context", "512 source tokens, 256 target tokens"],
+            ["Hardware", "RTX 3050 Ti (4 GB), 18.7 minutes"],
           ],
         },
 
         results: {
-          text: "Evaluated on a held-out split with ROUGE against reference summaries.",
+          text: "200 held-out examples. Both baselines are load-bearing: the " +
+                "untuned row shows whether fine-tuning did anything, the lead-3 " +
+                "row shows whether the whole approach was worth taking.",
           table: {
-            columns: ["Model", "ROUGE-1", "ROUGE-2", "ROUGE-L"],
+            columns: ["System", "ROUGE-1", "ROUGE-2", "ROUGE-L", "Avg words"],
             rows: [
-              ["Lead-3 baseline",   "TODO", "TODO", "TODO"],
-              ["T5, off the shelf", "TODO", "TODO", "TODO"],
-              ["T5, fine-tuned",    "TODO", "TODO", "0.71"],
+              ["lead-3 baseline",     "28.90", "10.33", "18.56", "95.4"],
+              ["t5-small, untuned",   "19.60", "6.91",  "13.83", "43.6"],
+              ["t5-small, fine-tuned","33.57", "11.86", "20.06", "96.6"],
             ],
             highlight: 2,
           },
-          note: "TODO: fill the baseline rows. \"ROUGE-L 0.71\" is a number; " +
-                "\"0.71 against 0.42 for the untuned model\" is a result — and " +
-                "the empty rows are the first thing a technical reviewer will " +
-                "notice. Worth adding a sentence on ROUGE's limits too: it " +
-                "rewards overlap, not factual correctness, which matters more " +
-                "than usual in a clinical setting.",
+          note: "Fine-tuning beats lead-3 by 1.50 ROUGE-L and beats the untuned " +
+                "model by 6.23. The margin over lead-3 is modest, and that is " +
+                "what an honest result looks like for a 60M-parameter model that " +
+                "sees roughly 11% of each article — published state of the art on " +
+                "this corpus is 21–27 ROUGE-L using far larger models with far " +
+                "longer context. Plenty of abstractive summarizers quietly fail " +
+                "the lead-3 test, which is exactly why a ROUGE score quoted " +
+                "without baselines means very little.",
         },
 
         deployment:
-          "Served as a Streamlit app: paste in a report, get the summary back. " +
-          "TODO: where it runs (Streamlit Community Cloud? a VM?), inference " +
-          "latency, and whether the model is loaded once at startup or per request.",
+          "A Streamlit app: paste an article, get a summary, with generation " +
+          "parameters exposed and the measured ROUGE shown alongside. Model " +
+          "weights load once per server via st.cache_resource rather than per " +
+          "request, and the UI flags when an input hits the 512-token limit — " +
+          "that truncation is a real architectural constraint, not a UI quirk, " +
+          "and hiding it would misrepresent what the model saw.",
 
         limitations: [
-          "Not clinically validated. A research project, not a medical device — its output should not inform patient care.",
-          "TODO: hallucination behaviour — does it ever invent findings that aren't in the source?",
-          "TODO: negation handling. Abstractive clinical summarizers are well known to drop \"no evidence of\" and flip a finding's meaning. Checking this and reporting what you found is a strong thing to be able to say.",
-          "TODO: which report types it was trained on, and where it degrades outside them.",
+          "Not clinically validated and not a medical device. Nothing it produces should inform patient care.",
+          "Wrong domain for a clinical claim: PubMed abstracts are written to be summaries, whereas a discharge summary is written under time pressure. Only the pipeline transfers.",
+          "Sees about 11% of each article. T5 caps input at 512 tokens while articles average 3,324 words, so the model summarises the opening and never reads the rest. A long-context model (LongT5, LED) is the obvious next step.",
+          "ROUGE measures n-gram overlap, not truth. A summary that drops a negation and inverts a finding can still score well. No factual-consistency metric was computed.",
+          "Single training run, no seed sweep — small differences between configurations are not meaningful.",
+          "Reported train_loss is scaled by gradient accumulation in current transformers versions: it logs ~11.7 against an eval_loss of 2.59. Read naively that looks like total failure, since uniform-random over T5's vocabulary is 10.38. I lost a retrain to chasing this as fp16 instability before identifying it as a reporting artifact.",
         ],
       },
     },
