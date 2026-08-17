@@ -121,9 +121,8 @@
 }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
-:root[data-skin="anime"] .brand-mark {
-  box-shadow: 0 0 14px var(--accent-line);
-}
+/* No glow: the mark is transparent, so a box-shadow would outline its
+   bounding box rather than the artwork. */
 :root[data-skin="anime"] .scroll-progress {
   height: 2.5px;
   background: linear-gradient(90deg, var(--accent), var(--accent-3), var(--accent-2));

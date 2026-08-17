@@ -165,11 +165,13 @@ svg.icon-brand { fill: currentColor; stroke: none; }
   margin-right: auto;
   white-space: nowrap;
 }
+/* The mark is a transparent PNG, so no radius or plate — a rounded corner on
+   a transparent image just clips empty pixels, and a glow would draw a square
+   halo around nothing. */
 .brand-mark {
-  width: 26px; height: 26px;
-  border-radius: 7px;
+  width: 30px; height: 30px;
   flex: none;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .nav { display: flex; gap: 4px; }
