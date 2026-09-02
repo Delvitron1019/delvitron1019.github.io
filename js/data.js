@@ -86,7 +86,7 @@ const DATA = {
 
       "I bring the same end-to-end mindset to my projects: fine-tuning a T5 " +
       "transformer for clinical report summarization and deploying it through " +
-      "Streamlit, training a BERT-based phishing detector to 92% accuracy, and " +
+      "Streamlit, building a hybrid HMM + BERT phishing classifier, and " +
       "building distributed Spark pipelines capable of processing 1M+ event " +
       "logs. I enjoy the full lifecycle — from understanding the data and " +
       "choosing the model to evaluating, deploying, and making the system " +
@@ -164,8 +164,10 @@ const DATA = {
                 "the two baselines that decide whether such a project is worth " +
                 "anything: a lead-3 extractive baseline, and the same model " +
                 "without fine-tuning.",
-      impact:   "ROUGE-L 20.06 on 200 held-out examples, against 18.56 for lead-3 " +
-                "and 13.83 for untuned T5. Trained in 18.7 minutes on a 4 GB laptop GPU.",
+      impact:   "Beats a lead-3 extractive baseline by 1.84 ROUGE-L " +
+                "(95% CI [1.06, 2.57], paired bootstrap over all 400 held-out " +
+                "examples) and the untuned model by 5.91. Trained in 18.7 minutes " +
+                "on a 4 GB laptop GPU.",
       tags:     ["Python", "T5", "Transformers", "PyTorch", "ROUGE", "Streamlit"],
       links:    [
         { label: "Code", url: "https://github.com/Delvitron1019/medical-text-summarization" },
@@ -270,8 +272,10 @@ const DATA = {
                 "phishing versus legitimate word statistics, those likelihoods " +
                 "are concatenated with a BERT sentence embedding, and classical " +
                 "classifiers run on the combined vector.",
-      impact:   "93.5% accuracy on a held-out set of 200 emails — logistic regression " +
-                "over combined HMM + BERT features, against 92.0% for random forest.",
+      impact:   "98.89% accuracy (95% CI [98.62, 99.14]) on all 29,767 emails " +
+                "against a 53.1% majority baseline, after finding and fixing " +
+                "test-set leakage in my own pipeline. The ablation overturned the " +
+                "premise: 3 HMM features match 768 BERT dimensions, no separable difference.",
       tags:     ["Python", "BERT", "HMM", "CRF", "Logistic Regression", "NLTK", "scikit-learn"],
       links:    [
         { label: "Code", url: "https://github.com/Delvitron1019/Phishing-Email-Detection-Framework" },
@@ -284,7 +288,7 @@ const DATA = {
           "TF-IDF features are fast, cheap, and harder to beat than people expect, " +
           "which makes this a good setting for a specific question — does a " +
           "transformer earn its cost here, or does TF-IDF plus SVM get you most " +
-          "of the way? The comparison is the point of the project, not the 92%.",
+          "of the way? The comparison is the point of the project, not the accuracy.",
 
         data: {
           text: "The Enron email corpus, labelled phishing versus legitimate. " +
@@ -297,13 +301,14 @@ const DATA = {
             ["Class balance", "15,791 legitimate (53.0%) / 13,976 phishing (47.0%)"],
             ["Body length", "median 694 characters, mean 1,465, max 228,353"],
             ["Missing values", "198 emails with no subject line; bodies complete"],
-            ["Used for modelling", "1,000 emails, randomly sampled from the 29,767"],
+            ["Used for modelling", "All 29,767 — 23,813 train / 5,954 test, stratified"],
+            ["Vocabulary", "132,966 symbols, built from training tokens only"],
             ["Fields used", "Body text only — headers and URLs were not used as features"],
           ],
-          note: "The 1,000-email subsample is the honest caveat on every number " +
-                "below: BERT embeddings were computed on CPU one email at a time, " +
-                "which makes the full corpus impractical in a notebook session. " +
-                "Worth stating plainly rather than quoting the 29,767 figure.",
+          note: "The original run used only 1,000 emails because BERT embeddings " +
+                "were computed one at a time on CPU. Batching them on GPU took the " +
+                "full corpus from impractical to 16 minutes end to end, which is " +
+                "why every number below is measured on all 29,767.",
         },
 
         approach: {
@@ -331,28 +336,36 @@ const DATA = {
             ["Feature vector", "770-d = 2 HMM log-likelihoods + 768-d BERT [CLS]"],
             ["Classifiers", "LogisticRegression (max_iter 1000), RandomForest (100 trees)"],
             ["Also explored", "NLTK MaxentClassifier (MEMM), 10 iterations; pycrfsuite CRF, c1=c2=1.0, 1,930 features"],
-            ["Split", "80/20 stratified, random_state 42 → 200 test emails (101 legitimate, 99 phishing)"],
+            ["Split", "80/20 stratified — features are now computed after the split, never before"],
           ],
         },
 
         results: {
-          text: "Measured on the 200-email held-out set. Precision, recall, and F1 " +
-                "are for the phishing class.",
+          text: "All 29,767 emails, 5,954 held out, 95% bootstrap CIs over 10,000 " +
+                "resamples. Precision, recall and F1 are for the phishing class.",
           table: {
-            columns: ["Model", "Accuracy", "Precision", "Recall", "F1"],
+            columns: ["Feature set / model", "Accuracy", "95% CI", "Precision", "Recall", "F1"],
             rows: [
-              ["Majority-class baseline",        "53.0%", "—",    "—",    "—"],
-              ["Random forest (HMM + BERT)",     "92.0%", "0.94", "0.90", "0.92"],
-              ["Logistic regression (HMM + BERT)", "93.5%", "0.94", "0.93", "0.93"],
+              ["Majority-class baseline",   "53.06%", "\u2014",          "\u2014", "\u2014", "\u2014"],
+              ["BERT only, random forest",  "96.41%", "[95.92, 96.88]",  "0.961",  "0.963",  "0.962"],
+              ["BERT only, logistic reg.",  "97.11%", "[96.69, 97.53]",  "0.968",  "0.971",  "0.969"],
+              ["HMM only, random forest",   "98.17%", "[97.82, 98.51]",  "0.986",  "0.975",  "0.980"],
+              ["HMM only, logistic reg.",   "98.72%", "[98.42, 98.99]",  "0.986",  "0.987",  "0.986"],
+              ["Combined, logistic reg.",   "98.56%", "[98.25, 98.84]",  "0.986",  "0.983",  "0.985"],
+              ["Combined, random forest",   "98.89%", "[98.62, 99.14]",  "0.985",  "0.991",  "0.988"],
             ],
-            highlight: 2,
+            highlight: 6,
           },
-          note: "Logistic regression beat random forest on the same features, " +
-                "which is the more interesting result: once the HMM and BERT " +
-                "features carry the signal, a linear model is enough, and the " +
-                "extra capacity of an ensemble buys nothing. Confusion matrix for " +
-                "the best model: 95 legitimate and 92 phishing correct, 6 false " +
-                "positives, 7 missed phishing emails.",
+          note: "The ablation overturned the project's own premise. The best " +
+                "combined model beats HMM-only logistic regression by 0.17 " +
+                "points, 95% CI [-0.02, +0.35]: the test set does not separate " +
+                "them, so that cannot be written up as a win. BERT alone is " +
+                "significantly worse than three HMM-derived features (-1.61 " +
+                "points, CI [-2.07, -1.16]). So 768 transformer dimensions add " +
+                "nothing measurable over a 3-feature statistical model that needs " +
+                "no GPU at inference. The headline is not the 98.89% \u2014 it is " +
+                "that the transformer did not earn its place, which is exactly the " +
+                "question the original version never asked.",
         },
 
         deployment:
@@ -363,7 +376,8 @@ const DATA = {
           "to host.",
 
         limitations: [
-          "Trained on 1,000 of the 29,767 available emails. Scaling to the full corpus is the obvious next step and would likely move these numbers.",
+          "Legitimate and phishing emails may come from different source collections. If so, part of what the classifier detects is corpus provenance — formatting, header artefacts, era-specific vocabulary — rather than phishing intent. That three features do the work of 768 makes this the first thing worth checking, and it caps what 98.89% actually means.",
+          "The corrected accuracy is higher than the withdrawn 93.5%, not lower. Three changes moved it up: 24x more training data, length-normalised HMM features instead of raw log-likelihoods that largely encoded email length, and standardisation before the L2-penalised model. Those outweighed the removal of leakage.",
           "BERT is frozen rather than fine-tuned, so the encoder never adapts to phishing language. Fine-tuning it is the single change most likely to improve results.",
           "Inputs truncated to 128 BERT tokens while the median email body runs to 694 characters, so most emails are only partly seen by the encoder.",
           "The CRF branch is not soundly evaluated — its reported figures re-print the logistic regression scores rather than scoring the CRF's own predictions. Treat the CRF as exploratory, not as a result.",
