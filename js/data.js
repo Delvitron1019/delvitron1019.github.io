@@ -625,13 +625,12 @@ const DATA = {
                 "housing price regression as the workload. The regression is the " +
                 "excuse; the question is what Ray's scheduling and early stopping " +
                 "actually buy over a single-process search.",
-      impact:   "TODO: the headline number. Best candidates: wall-clock to reach an " +
-                "equivalent validation score versus sequential search, or trials " +
-                "completed per minute at N workers.",
-      tags:     ["Python", "Ray", "Ray Tune", "Distributed Computing", "Hyperparameter Search"],
-      links:    [
-        { label: "Code", url: "TODO: repo URL" },
-      ],
+      impact:   "Coursework project (UMD DATA605) exercising Ray's distributed " +
+                "training and hyperparameter search on a fixed regression workload, " +
+                "delivered as a recorded walkthrough. Timings are not published here " +
+                "because the run was not benchmarked against a single-process baseline.",
+      tags:     ["Python", "Ray", "Distributed Computing", "Hyperparameter Search"],
+      links:    [],
       detail: {
         problem:
           "Hyperparameter search is embarrassingly parallel in principle and " +
@@ -644,57 +643,29 @@ const DATA = {
           "the extra moving parts.",
 
         data: {
-          text: "TODO: name the housing dataset and say why it was chosen. If it " +
-                "was chosen because the course specified it, say that — a workload " +
-                "picked for you is not a weakness, but pretending otherwise is.",
-          spec: [
-            ["Dataset", "TODO"],
-            ["Rows / features", "TODO"],
-            ["Target", "TODO: sale price, median value, etc."],
-          ],
+          text: "A housing price regression dataset, specified by the course rather " +
+                "than chosen. That is worth stating plainly: the workload here is a " +
+                "fixture for exercising the distributed machinery, not a modelling " +
+                "problem the project set out to solve.",
         },
 
         approach: {
-          bullets: [
-            "TODO: which Ray components — Ray Core, Ray Tune, Ray Train, Ray Serve?",
-            "TODO: the search algorithm and scheduler. ASHA and Hyperband are the " +
-              "interesting cases because early stopping is where Ray's advantage " +
-              "over a parallel for-loop actually comes from.",
-            "TODO: the underlying model and its search space.",
-            "TODO: cluster shape — local multi-core, or multiple nodes? Say which. " +
-              "Local mode is fine and honest; claiming a cluster you did not run is not.",
-          ],
-        },
-
-        results: {
-          text: "TODO: the comparison that makes this a result rather than a demo. " +
-                "The single-process baseline is not optional — without it, no number " +
-                "here means anything.",
-          table: {
-            columns: ["Configuration", "Wall clock", "Trials completed", "Best score"],
-            rows: [
-              ["Sequential search (baseline)", "TODO", "TODO", "TODO"],
-              ["Ray Tune, N workers",          "TODO", "TODO", "TODO"],
-              ["Ray Tune + ASHA early stopping", "TODO", "TODO", "TODO"],
-            ],
-          },
-          note: "TODO: the interesting finding. Speedup below the worker count is " +
-                "the expected result, and explaining the gap — scheduling overhead, " +
-                "stragglers, contention on a shared machine — is worth more than " +
-                "the speedup figure itself.",
+          text: "Ray is used to distribute model training and hyperparameter search " +
+                "across workers instead of running trials sequentially. Trials in a " +
+                "search have wildly different runtimes, and a naive parallel loop " +
+                "leaves workers idle waiting for stragglers, which is the scheduling " +
+                "problem Ray exists to solve.",
         },
 
         deployment:
-          "Not deployed. The artefact is a recorded walkthrough rather than a " +
-          "running service. TODO: link the video here once it is hosted — a " +
-          "reviewer can watch it in a minute without cloning anything, which is " +
-          "more than most repos offer.",
+          "Not deployed. The deliverable is a recorded walkthrough of the pipeline " +
+          "rather than a running service.",
 
         limitations: [
-          "Coursework, not an independent project — the workload and scope were set by the assignment. Worth stating plainly rather than letting a reader assume otherwise.",
-          "Housing price regression is a saturated benchmark task. It is here as a fixed workload for the scheduling comparison, not as a modelling contribution.",
-          "TODO: single machine or real cluster? If local, say so — local Ray hides network shuffle and inter-node scheduling cost, which is the same caveat the Spark benchmark carries.",
-          "TODO: was the comparison run on an otherwise idle machine? Background load makes parallel timings unreproducible.",
+          "Coursework, not an independent project — the workload and scope were set by the assignment, and this entry says so rather than implying otherwise.",
+          "No single-process baseline was measured, so no speedup can be claimed. A parallel job that is never compared against sequential execution demonstrates that the framework runs, not that it helped — which is why no timings appear above.",
+          "Housing price regression is a saturated benchmark task. It is here as a fixed workload, not as a modelling contribution.",
+          "Weaker than the Spark benchmark elsewhere on this site for exactly the reason above: that project located the crossover where distribution starts paying for itself, and this one does not.",
         ],
       },
     },
