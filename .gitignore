@@ -1,7 +1,5 @@
-# Résumé held back from the public site for now — it carries a phone number.
-# Drop a phone-free PDF at assets/resume.pdf and delete this line to publish it.
-# While the file is absent the Résumé button removes itself, so nothing breaks.
-assets/resume.pdf
+# assets/resume.pdf is published deliberately: it is the phone-free build
+# (Dev_Shah_Resume_web.pdf). Keep the phone number out of any copy committed here.
 
 # OS / editor noise
 Thumbs.db
