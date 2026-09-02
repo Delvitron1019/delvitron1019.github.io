@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Distributed Model Training with Ray — Dev Shah</title>
+<meta name="description" content="Distributed training and hyperparameter search on Ray, benchmarked against a single-process baseline.">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://delvitron1019.github.io/projects/ray-housing-price-prediction/">
+<meta property="og:title" content="Distributed Model Training with Ray — Dev Shah">
+<meta property="og:description" content="Distributed training and hyperparameter search on Ray, benchmarked against a single-process baseline.">
+<meta property="og:image" content="https://delvitron1019.github.io/assets/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://delvitron1019.github.io/assets/og-image.jpg">
+
+<link rel="icon" href="../../assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<meta name="theme-color" content="#0b0a1a">
+
+<link rel="stylesheet" href="../../css/styles.css">
+<link rel="stylesheet" href="../../css/project.css">
+<link rel="stylesheet" href="../../css/skin-anime.css">
+</head>
+<body>
+
+<a class="skip-link" href="#pdMain">Skip to content</a>
+
+<header class="site-header" id="siteHeader">
+  <div class="wrap header-inner">
+    <a class="brand" href="../../index.html">
+      <img class="brand-mark" src="../../assets/mark.png" alt="" width="26" height="26">
+      <span class="brand-text">Dev Shah</span>
+    </a>
+
+    <nav class="nav" id="nav" aria-label="Primary">
+      <a href="../../index.html#about">About</a>
+      <a href="../../index.html#projects">Projects</a>
+      <a href="../../index.html#skills">Skills</a>
+      <a href="../../index.html#experience">Experience</a>
+      <a href="../../index.html#contact">Contact</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-btn" id="skinToggle" type="button" aria-label="Switch visual style">
+        <svg class="i-skin-tech" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
+        <svg class="i-skin-anime" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c1.7 2.2 1.7 4.4 0 6.6C10.3 7.4 10.3 5.2 12 3z"/><path d="M20 9c-2.6.6-4.3 2-5 4.2 2.7.5 4.4-.9 5-4.2z"/><path d="M4 9c2.6.6 4.3 2 5 4.2-2.7.5-4.4-.9-5-4.2z"/><path d="M12 13.2V21"/></svg>
+      </button>
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Switch colour theme">
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><g class="rays"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></g></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.2 8.2 0 1 0 10.2 10.2z"/></svg>
+      </button>
+      <button class="icon-btn nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+</header>
+
+<main id="pdMain">
+  <section class="pd-hero"><div class="wrap" id="pdHero"></div></section>
+  <div class="wrap"><div id="pdBody"></div></div>
+  <div class="wrap"><nav class="pd-nav" id="pdNav" aria-label="Other projects"></nav></div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>window.PROJECT_SLUG = "distributed-log-processing";</script>
+<script src="../../js/data.js"></script>
+<script src="../../js/common.js"></script>
+<script src="../../js/project.js"></script>
+</body>
+</html>
