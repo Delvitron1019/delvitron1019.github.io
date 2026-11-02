@@ -31,16 +31,16 @@ const DATA = {
   profile: {
     name:      "Dev Trusharkumar Shah",
     shortName: "Dev Shah",
-    role:      "Data Science · NLP & Large Language Models",
-    availability: "Open to data science & ML roles",
+    role:      "Agentic Data Science · LLM Evaluation · NLP",
+    availability: "Applying to PhD programs for Fall 2027",
 
     blurb:
-      "MS Data Science candidate at the University of Maryland (4.0 GPA), " +
-      "working on NLP, large language models, and the ML pipelines that put " +
-      "them into production. Six internships across research labs, startups, " +
-      "enterprise SAP, and university operations — from benchmarking object " +
-      "detection on Raspberry Pi hardware to fine-tuning transformers for " +
-      "clinical text.",
+      "MS Data Science candidate at the University of Maryland (4.0 GPA). " +
+      "My research is in agentic data science: with Dr. Giacinto Paolo " +
+      "Saggese, I am building a framework that evaluates LLM agents against " +
+      "known ground truth, so their analyses are scored rather than judged by " +
+      "inspection. Before that, research internships at IIIT Lucknow and IIIT " +
+      "Allahabad, and projects in NLP and careful evaluation.",
 
     email: "shahdev5203@gmail.com",
 
@@ -49,6 +49,7 @@ const DATA = {
     resumeUrl: "assets/resume.pdf",
 
     links: [
+      { label: "Academic CV", url: "assets/cv.pdf",                                    icon: "link"     },
       { label: "GitHub",   url: "https://github.com/delvitron1019",                     icon: "github"   },
       { label: "LinkedIn", url: "https://www.linkedin.com/in/dev-shah-100736228",       icon: "linkedin" },
       { label: "Email",    url: "mailto:shahdev5203@gmail.com",                         icon: "mail"     },
@@ -68,11 +69,18 @@ const DATA = {
   about: {
     paragraphs: [
       "I'm a Data Science master's student at the University of Maryland with " +
-      "a 4.0 GPA, focused on machine learning, NLP, large language models, and " +
-      "building data-driven systems that make it beyond the notebook. Before " +
-      "UMD, I completed my B.Tech in Computer Science & AI at IIIT Lucknow, " +
-      "where I worked across computer vision, recommendation systems, and " +
-      "applied AI research.",
+      "a 4.0 GPA. My current research is in agentic data science. As a Student " +
+      "Researcher with Dr. Giacinto Paolo Saggese, I am building a framework " +
+      "that measures LLM agents against known ground truth: a synthetic data " +
+      "generator produces the answer key, an agent driver runs the method, and " +
+      "a scoring pipeline grades it. The first benchmark is causal discovery, " +
+      "where recovered graphs are scored against the true DAG by Structural " +
+      "Hamming Distance; a scripted baseline beats PC and GES at 5 nodes and " +
+      "stays within 1.4 SHD of the better of them up to 10 nodes.",
+
+      "Before UMD, I completed my B.Tech in Computer Science & AI at IIIT " +
+      "Lucknow, where I worked across computer vision, recommendation systems, " +
+      "and applied AI research.",
 
       "My strongest interest lies at the intersection of modeling and " +
       "engineering. At IIIT Lucknow, I benchmarked YOLOv3–v8 and Faster R-CNN " +
@@ -98,8 +106,8 @@ const DATA = {
       "Outside ML, I keep my algorithmic fundamentals sharp through " +
       "competitive programming — a 3-star CodeChef rating with a peak of 1691, " +
       "a top-40 global contest finish, and a top-5% LeetCode ranking. I'm at " +
-      "Maryland through May 2027 and looking for opportunities across data " +
-      "science, applied machine learning, and ML engineering.",
+      "Maryland through May 2027 and applying to PhD programs for Fall 2027. " +
+      "I'm also open to data science and applied machine learning roles.",
     ],
 
     /* Cards down the right side of the About section. Add, reorder, or delete
@@ -108,6 +116,7 @@ const DATA = {
       {
         title: "What I like working on",
         items: [
+          "Evaluating LLM agents against known ground truth",
           "NLP and LLM fine-tuning — BERT, T5, and domain-specific variants",
           "Turning notebooks into deployed, monitored services",
           "ETL and data quality: the unglamorous half that decides the outcome",
@@ -617,6 +626,20 @@ const DATA = {
       },
     },
     {
+      title:    "Multi-Source Data Reconciliation",
+      category: "data-eng",
+      period:   "2026",
+      blurb:    "Reconciled 144,422 records against a 429,637-record feed and " +
+                "showed that the headline 97.5% match rate measured shared " +
+                "lineage, not agreement.",
+      impact:   "Traced 61.8% of real discrepancies to 2.4% of records, cutting " +
+                "a review queue from 143,166 to 3,477.",
+      tags:     ["Python", "SQL", "DuckDB"],
+      links:    [
+        { label: "Code", url: "https://github.com/Delvitron1019/geo-conflation" },
+      ],
+    },
+    {
       title:    "Distributed Model Training with Ray",
       slug:     "ray-housing-price-prediction",
       category: "data-eng",
@@ -713,6 +736,27 @@ const DATA = {
   /* ── Experience ───────────────────────────────────────────────────────── */
   experience: [
     {
+      role:    "Student Researcher",
+      org:     "University of Maryland — Agentic Data Science",
+      period:  "Jul 2026 – Present",
+      location: "College Park, MD · Advisor: Dr. Giacinto Paolo Saggese",
+      bullets: [
+        "Building a method-agnostic framework that evaluates LLM agents against known ground truth: a synthetic data generator produces the answer key, an agent driver runs the method, and a scoring pipeline grades it.",
+        "First benchmark is causal discovery, scored by Structural Hamming Distance and edge precision/recall against the true DAG; a scripted baseline beats PC and GES at 5 nodes and stays within 1.4 SHD of the better of them up to 10 nodes.",
+        "Rebuilt the agent loop after finding the prototype computed answers in Python while the model only formatted them, so scores measure the model, not the scaffolding.",
+        "Authored a survey of automated exploratory data analysis (~60 tools and papers in five approach families) and the benchmark scoping document.",
+      ],
+      tags: ["Agentic AI", "LLM Evaluation", "Causal Discovery", "causal-learn", "pgmpy"],
+    },
+    {
+      role:    "Teaching Assistant",
+      org:     "University of Maryland — MSML610: Advanced Machine Learning",
+      period:  "Aug 2026 – Dec 2026",
+      location: "College Park, MD",
+      bullets: [],
+      tags: ["Machine Learning", "Teaching"],
+    },
+    {
       role:    "AI Strategy & Operations Intern",
       org:     "Georgia Institute of Technology — Office of Development",
       period:  "Jun 2026 – Jul 2026",
@@ -737,7 +781,7 @@ const DATA = {
     {
       role:    "ABAP Developer Intern",
       org:     "HB Fuller",
-      period:  "Jun 2024 – Aug 2024",
+      period:  "Jun 2024 – Jul 2024",
       location: "Pune, India",
       bullets: [
         "Built SAP ERP reporting in ABAP for a project covering taxation rules on plastic shipping.",
@@ -829,8 +873,8 @@ const DATA = {
   /* ── Contact ──────────────────────────────────────────────────────────── */
   contact: {
     heading: "Let's talk.",
-    body: "I'm looking for data science and machine learning roles. " +
-          "If you're hiring, or you just want to compare notes on a problem, " +
-          "my inbox is open.",
+    body: "I'm applying to PhD programs for Fall 2027 and am also open to " +
+          "data science and machine learning roles. If you'd like to talk " +
+          "research, or compare notes on a problem, my inbox is open.",
   },
 };
