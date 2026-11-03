@@ -838,7 +838,7 @@ const DATA = {
       degree: "B.Tech in Computer Science & AI",
       field:  "GPA 8.78 / 10",
       school: "Indian Institute of Information Technology, Lucknow, India",
-      period: "Nov 2021 – May 2025",
+      period: "Dec 2021 – Jul 2025",
       detail: "Data Structures & Algorithms · AI · NLP · Generative AI · DBMS · " +
               "Feature Engineering · Computer Networks",
     },
